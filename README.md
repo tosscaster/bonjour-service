@@ -9,7 +9,7 @@ This is a rewrite of the project Bonjour (https://github.com/watson/bonjour) int
 
 
 ## Installation
-Add to your project depedencies using Yarn or NPM.
+Add to your project dependencies using Yarn or NPM.
 
 #### Install with Yarn
 ```
