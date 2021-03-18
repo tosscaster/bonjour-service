@@ -2,7 +2,7 @@
 
 var os = require('os')
 var test = require('tape')
-var Service = require('../lib/service')
+var Service = require('../dist/lib/service')
 
 var getAddressesRecords = function (host) {
   var records = []

@@ -4,8 +4,8 @@ var os = require('os')
 var dgram = require('dgram')
 var tape = require('tape')
 var afterAll = require('after-all')
-var Service = require('../lib/service')
-var Bonjour = require('../')
+var { Service } = require('../dist/lib/service')
+var { Bonjour } = require('../dist')
 
 var getAddresses = function () {
   var addresses = []
@@ -35,7 +35,7 @@ var port = function (cb) {
 var test = function (name, fn) {
   tape(name, function (t) {
     port(function (p) {
-      fn(Bonjour({ ip: '127.0.0.1', port: p, multicast: false }), t)
+      fn(new Bonjour({ ip: '127.0.0.1', port: p, multicast: false }), t)
     })
   })
 }
