@@ -1,28 +1,37 @@
-# bonjour
+# bonjour-service
 
-A Bonjour/Zeroconf protocol implementation in pure JavaScript. Publish
+A Bonjour/Zeroconf protocol implementation in TypeScript. Publish
 services on the local network or discover existing services using
 multicast DNS.
 
-[![Build status](https://travis-ci.org/watson/bonjour.svg?branch=master)](https://travis-ci.org/watson/bonjour)
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/feross/standard)
+This is a rewrite of the project Bonjour (https://github.com/watson/bonjour) into modern TypeScript.
+
+
 
 ## Installation
+Add to your project depedencies using Yarn or NPM.
 
+#### Install with Yarn
 ```
-npm install bonjour
+yarn add bonjour-service
+```
+#### Install with NPM
+```
+npm install bonjour-service
 ```
 
 ## Usage
 
 ```js
-var bonjour = require('bonjour')()
+import Bonjour from 'bonjour-service'
+
+const instance = new Bonjour()
 
 // advertise an HTTP server on port 3000
-bonjour.publish({ name: 'My Web Server', type: 'http', port: 3000 })
+instance.publish({ name: 'My Web Server', type: 'http', port: 3000 })
 
 // browse for all http services
-bonjour.find({ type: 'http' }, function (service) {
+instance.find({ type: 'http' }, function (service) {
   console.log('Found an HTTP server:', service)
 })
 ```
@@ -32,7 +41,7 @@ bonjour.find({ type: 'http' }, function (service) {
 ### Initializing
 
 ```js
-var bonjour = require('bonjour')([options])
+var instance = new Bonjour({ options })
 ```
 
 The `options` are optional and will be used when initializing the
