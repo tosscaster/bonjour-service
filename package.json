@@ -46,5 +46,8 @@
   "bugs": {
     "url": "https://github.com/onlxltd/bonjour-service/issues"
   },
-  "homepage": "https://github.com/onlxltd/bonjour-service"
+  "homepage": "https://github.com/onlxltd/bonjour-service",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  }
 }
