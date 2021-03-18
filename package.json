@@ -1,7 +1,7 @@
 {
   "name": "bonjour-service",
   "version": "1.0.0",
-  "description": "A Bonjour/Zeroconf implementation in pure JavaScript",
+  "description": "A Bonjour/Zeroconf implementation in TypeScript",
   "main": "./dist/index.js",
   "dependencies": {
     "array-flatten": "^2.1.0",
@@ -19,10 +19,10 @@
     "ts-node-dev": "^1.1.6"
   },
   "scripts": {
-    "test": "standard && tape test/*.js",
+    "test": "standard --fix && tape test/*.js",
     "build": "tsc --removeComments true",
     "dev": "ts-node-dev --respawn --transpile-only ./src/index.ts",
-    "dev:test": "ts-node-dev --respawn --transpile-only ./test/test.ts"
+    "example:simple": "node examples/simple"
   },
   "repository": {
     "type": "git",
@@ -41,10 +41,10 @@
     "broadcast",
     "dns-sd"
   ],
-  "author": "Thomas Watson Steen <w@tson.dk> (https://twitter.com/wa7son)",
+  "author": "ON LX Lited <team@onlx.ltd> (https://labs.onlx.ltd)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/watson/bonjour/issues"
+    "url": "https://github.com/onlxltd/bonjour-service/issues"
   },
-  "homepage": "https://github.com/watson/bonjour"
+  "homepage": "https://github.com/onlxltd/bonjour-service"
 }
