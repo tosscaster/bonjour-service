@@ -18,7 +18,7 @@ export interface ServiceConfig {
     host?       : string
     fqdn?       : string
     subtypes?   : Array<string>
-    txt?        : any
+    txt?        : { [key: string]: any }
 
     probe?      : boolean
 }
@@ -27,19 +27,19 @@ export interface ServiceRecord {
     name        : string
     type        : 'PTR' | 'SRV' | 'TXT' | 'A' | 'AAAA'
     ttl         : number
-    data        : any
+    data        : { [key: string]: any } | string
 }
 
 export class Service extends EventEmitter {
 
     public name         : string
-    private type        : string
-    private protocol    : 'tcp' | 'udp'
-    private port        : number
-    private host        : string
+    public type        : string
+    public protocol    : 'tcp' | 'udp'
+    public port        : number
+    public host        : string
     public fqdn         : string
-    private txt?        : any
-    private subtypes?   : Array<string>
+    public txt?        : any
+    public subtypes?   : Array<string>
 
     public probe        : boolean = true
 
