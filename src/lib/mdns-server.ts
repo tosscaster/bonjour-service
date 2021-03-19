@@ -57,7 +57,7 @@ export class Server {
         }
     }
 
-    private respondToQuery(query: any) {
+    private respondToQuery(query: any): any {
         let self = this
         query.questions.forEach((question: any) => {
             var type = question.type
@@ -103,7 +103,7 @@ export class Server {
         })
     }
 
-    private recordsFor(name: string, type: string) {
+    private recordsFor(name: string, type: string): Array<any> {
         if (!(type in this.registry)) {
             return []
         }
@@ -114,7 +114,7 @@ export class Server {
         })
     }
       
-    private isDuplicateRecord (a: ServiceRecord) {
+    private isDuplicateRecord (a: ServiceRecord): (b: ServiceRecord) => any {
         return (b: ServiceRecord) => {
             return a.type === b.type &&
                 a.name === b.name &&
@@ -122,7 +122,7 @@ export class Server {
         }
     }
       
-    private unique () {
+    private unique(): (obj: any) => boolean {
         var set: Array<any> = []
         return (obj: any) => {
             if (~set.indexOf(obj)) return false
