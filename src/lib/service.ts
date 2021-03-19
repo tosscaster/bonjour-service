@@ -27,7 +27,7 @@ export interface ServiceRecord {
     name        : string
     type        : 'PTR' | 'SRV' | 'TXT' | 'A' | 'AAAA'
     ttl         : number
-    data        : { [key: string]: any } | string
+    data        : { [key: string]: any } | string | any
 }
 
 export class Service extends EventEmitter {
