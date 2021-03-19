@@ -1,9 +1,9 @@
-import flatten      from 'array-flatten'
-import { ServiceRecord } from './service'
+import flatten              from 'array-flatten'
+import { ServiceRecord }    from './service'
+import deepEqual            from 'fast-deep-equal/es6'
 
-const MulticastDNS  = require('multicast-dns')
-const dnsEqual      = require('dns-equal')
-const deepEqual    = require('deep-equal')
+const MulticastDNS          = require('multicast-dns')
+const dnsEqual              = require('dns-equal')
 
 export class Server {
 
