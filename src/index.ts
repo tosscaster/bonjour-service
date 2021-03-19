@@ -78,4 +78,6 @@ export class Bonjour {
 
 }
 
+export { Service, Browser }
+
 export default Bonjour
