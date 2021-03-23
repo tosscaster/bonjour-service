@@ -1,5 +1,7 @@
 # bonjour-service
 
+[![build](https://github.com/onlxltd/bonjour-service/actions/workflows/build.yml/badge.svg)](https://github.com/onlxltd/bonjour-service/actions/workflows/build.yml)
+
 A Bonjour/Zeroconf protocol implementation in TypeScript. Publish
 services on the local network or discover existing services using
 multicast DNS.
