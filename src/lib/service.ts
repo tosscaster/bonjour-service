@@ -30,6 +30,13 @@ export interface ServiceRecord {
     data        : { [key: string]: any } | string | any
 }
 
+export interface ServiceReferer {
+    address : string
+    family  : 'IPv4' | 'IPv6'
+    port    : number
+    size    : number
+}
+
 export class Service extends EventEmitter {
 
     public name         : string
@@ -41,6 +48,7 @@ export class Service extends EventEmitter {
     public txt?         : any
     public subtypes?    : Array<string>
     public addresses?   : Array<string>
+    public referer?     : ServiceReferer
 
     public probe        : boolean = true
 
