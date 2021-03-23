@@ -33,13 +33,14 @@ export interface ServiceRecord {
 export class Service extends EventEmitter {
 
     public name         : string
-    public type        : string
-    public protocol    : 'tcp' | 'udp'
-    public port        : number
-    public host        : string
+    public type         : string
+    public protocol     : 'tcp' | 'udp'
+    public port         : number
+    public host         : string
     public fqdn         : string
-    public txt?        : any
-    public subtypes?   : Array<string>
+    public txt?         : any
+    public subtypes?    : Array<string>
+    public addresses?   : Array<string>
 
     public probe        : boolean = true
 
