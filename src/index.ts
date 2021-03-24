@@ -32,7 +32,7 @@ export class Bonjour {
      * @param callback
      * @returns 
      */
-    public unpublishAll(callback: CallableFunction) {
+    public unpublishAll(callback?: CallableFunction | undefined) {
         return this.registry.unpublishAll(callback)
     }
 

@@ -26,7 +26,7 @@ export class Registry {
         return service
     }
 
-    public unpublishAll(callback: CallableFunction) {
+    public unpublishAll(callback: CallableFunction | undefined) {
         this.teardown(this.server, this.services, callback)
         this.services = []
     }
