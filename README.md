@@ -1,6 +1,6 @@
 # bonjour-service
 
-[![build](https://github.com/onlxltd/bonjour-service/actions/workflows/build.yml/badge.svg)](https://github.com/onlxltd/bonjour-service/actions/workflows/build.yml) ![npm bundle size](https://img.shields.io/bundlephobia/min/bonjour-service) [![DeepScan grade](https://deepscan.io/api/teams/13435/projects/16430/branches/352351/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=13435&pid=16430&bid=352351) ![GitHub Release Date](https://img.shields.io/github/release-date/onlxltd/bonjour-service?color=%233498db) ![GitHub](https://img.shields.io/github/license/onlxltd/bonjour-service)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/onlxltd/bonjour-service/build?style=flat-square) ![npm bundle size](https://img.shields.io/bundlephobia/min/bonjour-service?style=flat-square) [![DeepScan grade](https://deepscan.io/api/teams/13435/projects/16430/branches/352351/badge/grade.svg?style=flat-square)](https://deepscan.io/dashboard#view=project&tid=13435&pid=16430&bid=352351) ![GitHub Release Date](https://img.shields.io/github/release-date/onlxltd/bonjour-service?color=%233498db&style=flat-square) ![GitHub](https://img.shields.io/github/license/onlxltd/bonjour-service?style=flat-square)
 
 A Bonjour/Zeroconf protocol implementation in TypeScript. Publish
 services on the local network or discover existing services using
