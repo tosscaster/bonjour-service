@@ -49,8 +49,8 @@ export class Browser extends EventEmitter {
         if (typeof opts === 'function') return new Browser(mdns, null, opts)
 
         this.mdns   = mdns
-        
-        if(opts.txt != null) {
+
+        if(opts != null && opts.txt != null) {
             this.txt    = dnsTxt(opts.txt)
         }
 
