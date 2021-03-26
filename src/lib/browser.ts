@@ -49,7 +49,10 @@ export class Browser extends EventEmitter {
         if (typeof opts === 'function') return new Browser(mdns, null, opts)
 
         this.mdns   = mdns
-        this.txt    = dnsTxt(opts.txt)
+        
+        if(opts.txt != null) {
+            this.txt    = dnsTxt(opts.txt)
+        }
 
         if (!opts || !opts.type) {
             this.name = WILDCARD
