@@ -184,7 +184,7 @@ export class Browser extends EventEmitter {
                   service.subtypes = types.subtypes
                 } else if (rr.type === 'TXT') {
                   service.rawTxt = rr.data
-                  service.txt = txt.decode(rr.data)
+                  service.txt = dnsTxt().decode(rr.data)
                 }
               })
       
