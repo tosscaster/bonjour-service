@@ -23,7 +23,7 @@ export class Bonjour {
      * @param opts 
      * @returns 
      */
-    public publish(opts: ServiceConfig) {
+    public publish(opts: ServiceConfig): Service {
         return this.registry.publish(opts)
     }
 
@@ -32,7 +32,7 @@ export class Bonjour {
      * @param callback
      * @returns 
      */
-    public unpublishAll(callback?: CallableFunction | undefined) {
+    public unpublishAll(callback?: CallableFunction | undefined): void {
         return this.registry.unpublishAll(callback)
     }
 
@@ -42,7 +42,7 @@ export class Bonjour {
      * @param onup Callback when up event received
      * @returns 
      */
-    public find(opts: BrowserConfig, onup?: (...args: any[]) => void) {
+    public find(opts: BrowserConfig, onup?: (...args: any[]) => void): Browser {
         return new Browser(this.server.mdns, opts, onup)
     }
 
@@ -53,8 +53,8 @@ export class Bonjour {
      * @param callback Callback when device found
      * @returns 
      */
-    public findOne(opts: BrowserConfig, timeout: number = 10000, callback: CallableFunction) {
-        let browser: Browser = new Browser(this.server.mdns, opts)
+    public findOne(opts: BrowserConfig, timeout = 10000, callback: CallableFunction): Browser {
+        const browser: Browser = new Browser(this.server.mdns, opts)
         var timer: any
         browser.once('up', (service: Service) => {
             if(timer !== undefined) clearTimeout(timer)
