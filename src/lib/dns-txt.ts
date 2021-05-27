@@ -49,7 +49,7 @@ export class DnsTxt {
      */
     public decodeAll(buffer: Array<Buffer>) {
         return buffer
-        .filter(i => i.length > 1) //i.toString() != ''
+        .filter(i => i.length > 1)
         .map(i => this.decode(i))
         .reduce((prev, curr) => {
             var obj         = prev
