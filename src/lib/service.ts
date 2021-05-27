@@ -5,8 +5,7 @@
 import os               from 'os'
 import { EventEmitter } from 'events'
 import { toString as ServiceToString } from './service-types'
-
-const txt = require('dns-txt')()
+import DnsTxt from './dns-txt'
 
 const TLD: string = '.local'
 
@@ -59,8 +58,12 @@ export class Service extends EventEmitter {
     public start?       : any
     public stop?        : any
 
+    private txtService  : DnsTxt
+
     constructor(config: ServiceConfig) {
         super()
+
+        this.txtService = new DnsTxt()
 
         this.name       = config.name
         this.protocol   = config.protocol || 'tcp'
@@ -138,7 +141,7 @@ export class Service extends EventEmitter {
             name    : service.fqdn,
             type    : 'TXT',
             ttl     : 4500,
-            data    : txt.encode(service.txt)
+            data    : this.txtService.encode(service.txt)
         }
     }
 

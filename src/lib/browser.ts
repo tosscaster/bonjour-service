@@ -1,9 +1,9 @@
 import EventEmitter from 'events'
 import Service, { ServiceRecord } from './service'
 import { toString as ServiceToString, toType as ServiceToType } from './service-types'
+import DnsTxt from './dns-txt'
 
 const dnsEqual      = require('dns-equal')
-const dnsTxt        = require('dns-txt')
 
 const TLD           = '.local'
 const WILDCARD      = '_services._dns-sd._udp' + TLD
@@ -51,7 +51,9 @@ export class Browser extends EventEmitter {
         this.mdns   = mdns
 
         if(opts != null && opts.txt != null) {
-            this.txt    = dnsTxt(opts.txt)
+            this.txt    = new DnsTxt(opts.txt)
+        } else {
+            this.txt    = new DnsTxt()
         }
 
         if (!opts || !opts.type) {
@@ -156,7 +158,6 @@ export class Browser extends EventEmitter {
 
     private buildServicesFor(name: string, packet: any, txt: any, referer: any) {
         var records = packet.answers.concat(packet.additionals).filter( (rr: ServiceRecord) => rr.ttl > 0) // ignore goodbye messages
-        
       
         return records
           .filter((rr: ServiceRecord) => rr.type === 'PTR' && dnsEqual(rr.name, name))
@@ -184,7 +185,7 @@ export class Browser extends EventEmitter {
                   service.subtypes = types.subtypes
                 } else if (rr.type === 'TXT') {
                   service.rawTxt = rr.data
-                  service.txt = dnsTxt().decode(rr.data)
+                  service.txt = this.txt.decodeAll(rr.data)
                 }
               })
       
