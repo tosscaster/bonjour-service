@@ -41,7 +41,7 @@ export class Browser extends EventEmitter {
     private name?       : string
     private wildcard    : boolean = false
 
-    private services    : Array<any> = []
+    private _services    : Array<any> = []
 
     constructor(mdns: any, opts: any, onup?: (...args: any[]) => void) {
         super()
@@ -119,16 +119,20 @@ export class Browser extends EventEmitter {
     public update() {
         this.mdns.query(this.name, 'PTR')
     }
+
+    public get services() {
+        return this._services;
+    }
     
     private addService(service: Service) {
-        this.services.push(service)
+        this._services.push(service)
         this.serviceMap[service.fqdn] = true
         this.emit('up', service)
     }
 
     private removeService(fqdn: string) {
         var service, index
-        this.services.some(function (s, i) {
+        this._services.some(function (s, i) {
             if(dnsEqual(s.fqdn, fqdn)) {
                 service = s
                 index = i
@@ -136,7 +140,7 @@ export class Browser extends EventEmitter {
             }
         })
         if (!service || index === undefined) return
-        this.services.splice(index, 1)
+        this._services.splice(index, 1)
         delete this.serviceMap[fqdn]
         this.emit('down', service)
     }
