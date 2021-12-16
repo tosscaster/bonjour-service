@@ -113,7 +113,7 @@ Emitted every time a new service is found that matches the browser.
 
 Emitted every time an existing service emmits a goodbye message.
 
-#### `browser.services`
+#### `browser.services()`
 
 An array of services known by the browser to be online.
 
