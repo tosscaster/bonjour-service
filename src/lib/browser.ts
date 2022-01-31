@@ -1,4 +1,4 @@
-import EventEmitter from 'events'
+import { EventEmitter } from 'events'
 import Service, { ServiceRecord } from './service'
 import { toString as ServiceToString, toType as ServiceToType } from './service-types'
 import DnsTxt from './dns-txt'
