@@ -43,7 +43,7 @@ export class Browser extends EventEmitter {
 
     private _services    : Array<any> = []
 
-    constructor(mdns: any, opts: any, onup?: (...args: any[]) => void) {
+    constructor(mdns: any, opts: any, onup?: (service: Service) => void) {
         super()
 
         if (typeof opts === 'function') return new Browser(mdns, null, opts)
