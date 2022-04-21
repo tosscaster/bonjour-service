@@ -84,7 +84,7 @@ export class Service extends EventEmitter {
         for(let iface of ifaces) {
             let addrs : Array<os.NetworkInterfaceInfo> = iface
             for(let addr of addrs) {
-                if(addr.internal) continue
+                if(addr.internal || addr.mac === '00:00:00:00:00:00') continue
                 switch(addr.family) {
                     case 'IPv4':
                         records.push(this.RecordA(this, addr.address))
