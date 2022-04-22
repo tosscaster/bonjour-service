@@ -2,20 +2,19 @@ import flatten              from 'array-flatten'
 import { ServiceRecord }    from './service'
 import deepEqual            from 'fast-deep-equal/es6'
 
-const MulticastDNS          = require('multicast-dns')
-const dnsEqual              = require('dns-equal')
+import MulticastDNS         from 'multicast-dns'
+import dnsEqual             from 'dns-equal'
 
 export class Server {
 
-    public mdns         : any
-    private registry    : any = {}
-    private errorCallback: Function;
+    public mdns             : any
+    private registry        : any = {}
+    private errorCallback   : Function;
 
     constructor(opts: any, errorCallback?: Function | undefined) {
         this.mdns = MulticastDNS(opts)
         this.mdns.setMaxListeners(0)
         this.mdns.on('query', this.respondToQuery.bind(this))
-
         this.errorCallback = errorCallback ?? function(err: any) {throw err;}
     }
 

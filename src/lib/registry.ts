@@ -1,8 +1,9 @@
-import flatten                      from 'array-flatten'
-import Server                       from './mdns-server'
-import Service, { ServiceConfig, ServiceRecord }   from './service'
+import flatten                                      from 'array-flatten'
+import dnsEqual                                     from 'dns-equal'
+import Server                                       from './mdns-server'
+import Service, { ServiceConfig, ServiceRecord }    from './service'
 
-const dnsEqual  = require('dns-equal')
+
 
 const REANNOUNCE_MAX_MS : number    = 60 * 60 * 1000
 const REANNOUNCE_FACTOR : number    = 3

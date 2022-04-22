@@ -2,10 +2,10 @@
  * Bonjour Service - Service Definition
  */
 
-import os               from 'os'
-import { EventEmitter } from 'events'
-import { toString as ServiceToString } from './service-types'
-import DnsTxt from './dns-txt'
+import os                               from 'os'
+import { EventEmitter }                 from 'events'
+import { toString as ServiceToString }  from './service-types'
+import DnsTxt                           from './dns-txt'
 
 const TLD: string = '.local'
 
