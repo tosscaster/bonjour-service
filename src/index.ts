@@ -42,7 +42,7 @@ export class Bonjour {
      * @param onup Callback when up event received
      * @returns 
      */
-    public find(opts: BrowserConfig | undefined = undefined, onup?: (...args: any[]) => void): Browser {
+    public find(opts: BrowserConfig | undefined = undefined, onup?: (service: Service) => void): Browser {
         return new Browser(this.server.mdns, opts, onup)
     }
 
@@ -78,6 +78,6 @@ export class Bonjour {
 
 }
 
-export { Service, ServiceReferer, Browser }
+export { Service, ServiceReferer, ServiceConfig, Browser, BrowserConfig }
 
 export default Bonjour
