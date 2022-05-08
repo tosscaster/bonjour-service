@@ -65,6 +65,11 @@ export class Service extends EventEmitter {
 
         this.txtService = new DnsTxt()
 
+        if (!config.name) throw new Error('Required name not given');
+        if (!config.type) throw new Error('Required type not given');
+        if (!config.port) throw new Error('Required port not given');
+        
+
         this.name       = config.name
         this.protocol   = config.protocol || 'tcp'
         this.type       = ServiceToString({ name: config.type, protocol: this.protocol })
