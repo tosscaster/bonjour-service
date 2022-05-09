@@ -151,8 +151,7 @@ test('bonjour.find - down event', function (bonjour, t) {
   })
 })
 
-
-// BROKEN TEST : Please FIX 
+// BROKEN TEST : Please FIX
 // test('bonjour.findOne - callback', function (bonjour, t) {
 //   const next = afterAll(function () {
 //     bonjour.findOne({ type: 'test' }, function (s) {

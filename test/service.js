@@ -86,7 +86,7 @@ test('_records() - everything', function (t) {
   t.deepEqual(s.records(), [
     { data: s.fqdn, name: '_http._tcp.local', ttl: 28800, type: 'PTR' },
     { data: { port: 3000, target: 'example.com' }, name: s.fqdn, ttl: 120, type: 'SRV' },
-    { data: [ Buffer.from('666f6f3d626172', 'hex')], name: s.fqdn, ttl: 4500, type: 'TXT' }
+    { data: [Buffer.from('666f6f3d626172', 'hex')], name: s.fqdn, ttl: 4500, type: 'TXT' }
   ].concat(getAddressesRecords(s.host)))
   t.end()
 })
