@@ -1,9 +1,9 @@
-import { EventEmitter } from 'events'
-import Service, { ServiceRecord } from './service'
-import { toString as ServiceToString, toType as ServiceToType } from './service-types'
-import DnsTxt from './dns-txt'
-
-const dnsEqual      = require('dns-equal')
+import KeyValue                                                     from './KeyValue'
+import DnsTxt                                                       from './dns-txt'
+import dnsEqual                                                     from 'dns-equal'
+import { EventEmitter }                                             from 'events'
+import Service, { ServiceRecord }                                   from './service'
+import { toString as ServiceToString, toType as ServiceToType }     from './service-types'
 
 const TLD           = '.local'
 const WILDCARD      = '_services._dns-sd._udp' + TLD
@@ -34,12 +34,13 @@ export interface BrowserConfig {
 export class Browser extends EventEmitter {
 
     private mdns        : any
-    private onresponse  : any = null
-    private serviceMap  : { [key: string]: any } = {}
+    private onresponse  : any       = null
+    private serviceMap  : KeyValue  = {}
 
     private txt         : any
     private name?       : string
-    private wildcard    : boolean = false
+    private txtQuery    : KeyValue | undefined
+    private wildcard    : boolean   = false
 
     private _services    : Array<any> = []
 
@@ -65,6 +66,9 @@ export class Browser extends EventEmitter {
             this.wildcard = false
         }
 
+        // Provide a txt query
+        if(opts.txt !== undefined) this.txtQuery = opts.txt
+
         if (onup) this.on('up', onup)
 
         this.start()
@@ -78,7 +82,7 @@ export class Browser extends EventEmitter {
         // List of names for the browser to listen for. In a normal search this will
         // be the primary name stored on the browser. In case of a wildcard search
         // the names will be determined at runtime as responses come in.
-        var nameMap: { [key: string]: any } = {}
+        var nameMap: KeyValue = {}
         if (!this.wildcard) nameMap[this.name] = true
     
         this.onresponse = (packet: any, rinfo: any) => {
@@ -125,9 +129,13 @@ export class Browser extends EventEmitter {
     }
     
     private addService(service: Service) {
-        this._services.push(service)
-        this.serviceMap[service.fqdn] = true
-        this.emit('up', service)
+        try {
+            // Test if service allowed by TXT query
+            this.filterService(service)
+            this._services.push(service)
+            this.serviceMap[service.fqdn] = true
+            this.emit('up', service)
+        } catch(_) {}
     }
 
     private removeService(fqdn: string) {
@@ -143,6 +151,24 @@ export class Browser extends EventEmitter {
         this._services.splice(index, 1)
         delete this.serviceMap[fqdn]
         this.emit('down', service)
+    }
+
+    private filterService(service: Service) {
+        if(this.txtQuery === undefined) return
+        let serviceTxt = service.txt
+        let query = Object.entries(this.txtQuery)
+            .map(([key, value]) => {
+                try {
+                    let queryValue = serviceTxt[key]
+                    if(queryValue === undefined) return false
+                    if(value != queryValue) return false
+                    return true
+                } catch(_) {
+                    return false
+                }
+            })
+        if(query.length == 0) return
+        if(query.includes(false)) throw new Error('Service does not meet TXT query')
     }
 
     // PTR records with a TTL of 0 is considered a "goodbye" announcement. I.e. a
@@ -166,7 +192,7 @@ export class Browser extends EventEmitter {
         return records
           .filter((rr: ServiceRecord) => rr.type === 'PTR' && dnsEqual(rr.name, name))
           .map((ptr: ServiceRecord) => {
-            var service: { [key: string]: any } = {
+            var service: KeyValue = {
               addresses: []
             }
       
