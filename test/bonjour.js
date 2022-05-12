@@ -151,18 +151,17 @@ test('bonjour.find - down event', function (bonjour, t) {
   })
 })
 
-// BROKEN TEST : Please FIX
-// test('bonjour.findOne - callback', function (bonjour, t) {
-//   const next = afterAll(function () {
-//     bonjour.findOne({ type: 'test' }, function (s) {
-//       t.equal(s.name, 'Callback')
-//       bonjour.destroy()
-//       t.end()
-//     })
-//   })
-//   bonjour.publish({ name: 'Invalid', type: 'test2', port: 3000 }).on('up', next())
-//   bonjour.publish({ name: 'Callback', type: 'test', port: 3000 }).on('up', next())
-// })
+test('bonjour.findOne - callback', function (bonjour, t) {
+  const next = afterAll(function () {
+    bonjour.findOne({ type: 'test' }, undefined, function (s) {
+      t.equal(s.name, 'Callback')
+      bonjour.destroy()
+      t.end()
+    })
+  })
+  bonjour.publish({ name: 'Invalid', type: 'test2', port: 3000 }).on('up', next())
+  bonjour.publish({ name: 'Callback', type: 'test', port: 3000 }).on('up', next())
+})
 
 test('bonjour.findOne - emitter', function (bonjour, t) {
   const next = afterAll(function () {
