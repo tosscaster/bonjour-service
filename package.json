@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A Bonjour/Zeroconf implementation in TypeScript",
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "dependencies": {
     "array-flatten": "^2.1.2",
     "dns-equal": "^1.0.0",
