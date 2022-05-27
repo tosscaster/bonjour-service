@@ -9,17 +9,22 @@ const { Bonjour } = require('../dist')
 
 const getAddresses = function () {
   const addresses = []
-  const itrs = os.networkInterfaces()
-  for (const i in itrs) {
-    const addrs = itrs[i]
-    for (const j in addrs) {
-      if (addrs[j].internal === false) {
-        addresses.push(addrs[j].address)
+  const itrs = Object.values(os.networkInterfaces())
+  for (const addrs of itrs) {
+    for (const { internal, mac, address } of addrs) {
+      if (internal === false && mac !== '00:00:00:00:00:00' && !addresses.includes(address)) {
+        addresses.push(address)
       }
     }
   }
   return addresses
 }
+
+const filterDuplicates = (input) => input.reduce((prev, curr) => {
+  const obj = prev
+  if (!obj.includes(curr)) prev.push(curr)
+  return obj
+}, [])
 
 const port = function (cb) {
   const s = dgram.createSocket('udp4')
@@ -98,7 +103,7 @@ test('bonjour.find', function (bonjour, t) {
       t.ok(Number.isFinite(s.referer.port))
       t.ok(Number.isFinite(s.referer.size))
       t.deepEqual(s.subtypes, [])
-      t.deepEqual(s.addresses.sort(), getAddresses().sort())
+      t.deepEqual(filterDuplicates(s.addresses.sort()), getAddresses().sort())
 
       if (++ups === 2) {
         // use timeout in an attempt to make sure the invalid record doesn't
@@ -206,4 +211,3 @@ test('bonjour.publish multiple nested', (bonjour, t) => {
     })
   })
 })
-git 

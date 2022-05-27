@@ -6,12 +6,11 @@ const { Service } = require('../dist/lib/service')
 
 const getAddressesRecords = function (host) {
   const records = []
-  const itrs = os.networkInterfaces()
-  for (const i in itrs) {
-    const addrs = itrs[i]
-    for (const j in addrs) {
-      if (addrs[j].internal === false) {
-        records.push({ data: addrs[j].address, name: host, ttl: 120, type: addrs[j].family === 'IPv4' ? 'A' : 'AAAA' })
+  const itrs = Object.values(os.networkInterfaces())
+  for (const addrs of itrs) {
+    for (const { internal, address, family, mac } of addrs) {
+      if (internal === false && mac !== '00:00:00:00:00:00') {
+        records.push({ data: address, name: host, ttl: 120, type: family === 'IPv4' ? 'A' : 'AAAA' })
       }
     }
   }

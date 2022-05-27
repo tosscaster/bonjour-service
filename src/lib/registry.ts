@@ -51,7 +51,7 @@ export class Registry {
             if (index !== -1) registry.services.splice(index, 1)
         }
         
-        const service     = new Service(config)
+        const service   = new Service(config)
         service.start   = start.bind(null, service, this)
         service.stop    = stop.bind(null, service, this)
         service.start({ probe: config.probe !== false })
