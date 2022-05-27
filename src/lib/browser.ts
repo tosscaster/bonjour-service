@@ -1,9 +1,10 @@
-import { EventEmitter } from 'events'
-import Service, { ServiceRecord } from './service'
-import { toString as ServiceToString, toType as ServiceToType } from './service-types'
-import DnsTxt from './dns-txt'
-
-const dnsEqual      = require('dns-equal')
+import KeyValue                                                     from './KeyValue'
+import DnsTxt                                                       from './dns-txt'
+import dnsEqual                                                     from 'dns-equal'
+import { EventEmitter }                                             from 'events'
+import Service, { ServiceRecord }                                   from './service'
+import { toString as ServiceToString, toType as ServiceToType }     from './service-types'
+import filterService                                                from './utils/filter-service'
 
 const TLD           = '.local'
 const WILDCARD      = '_services._dns-sd._udp' + TLD
@@ -34,12 +35,13 @@ export interface BrowserConfig {
 export class Browser extends EventEmitter {
 
     private mdns        : any
-    private onresponse  : any = null
-    private serviceMap  : { [key: string]: any } = {}
+    private onresponse  : any       = null
+    private serviceMap  : KeyValue  = {}
 
     private txt         : any
     private name?       : string
-    private wildcard    : boolean = false
+    private txtQuery    : KeyValue | undefined
+    private wildcard    : boolean   = false
 
     private _services    : Array<any> = []
 
@@ -65,6 +67,9 @@ export class Browser extends EventEmitter {
             this.wildcard = false
         }
 
+        // Provide a txt query
+        if(opts.txt !== undefined) this.txtQuery = opts.txt
+
         if (onup) this.on('up', onup)
 
         this.start()
@@ -78,7 +83,7 @@ export class Browser extends EventEmitter {
         // List of names for the browser to listen for. In a normal search this will
         // be the primary name stored on the browser. In case of a wildcard search
         // the names will be determined at runtime as responses come in.
-        var nameMap: { [key: string]: any } = {}
+        var nameMap: KeyValue = {}
         if (!this.wildcard) nameMap[this.name] = true
     
         this.onresponse = (packet: any, rinfo: any) => {
@@ -125,6 +130,8 @@ export class Browser extends EventEmitter {
     }
     
     private addService(service: Service) {
+        // Test if service allowed by TXT query
+        if(filterService(service, this.txtQuery) === false) return
         this._services.push(service)
         this.serviceMap[service.fqdn] = true
         this.emit('up', service)
@@ -166,7 +173,7 @@ export class Browser extends EventEmitter {
         return records
           .filter((rr: ServiceRecord) => rr.type === 'PTR' && dnsEqual(rr.name, name))
           .map((ptr: ServiceRecord) => {
-            var service: { [key: string]: any } = {
+            const service: KeyValue = {
               addresses: []
             }
       
