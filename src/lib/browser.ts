@@ -69,7 +69,7 @@ export class Browser extends EventEmitter {
         }
 
         // Provide a txt query, filter binary key if provided
-        if(opts.txt !== undefined) this.txtQuery = filterTxt(opts.txt)
+        if(opts != null && opts.txt !== undefined) this.txtQuery = filterTxt(opts.txt)
 
         if (onup) this.on('up', onup)
 
