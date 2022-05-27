@@ -4,6 +4,7 @@ import dnsEqual                                                     from 'dns-eq
 import { EventEmitter }                                             from 'events'
 import Service, { ServiceRecord }                                   from './service'
 import { toString as ServiceToString, toType as ServiceToType }     from './service-types'
+import filterService                                                from './utils/filter-service'
 
 const TLD           = '.local'
 const WILDCARD      = '_services._dns-sd._udp' + TLD
@@ -129,13 +130,11 @@ export class Browser extends EventEmitter {
     }
     
     private addService(service: Service) {
-        try {
-            // Test if service allowed by TXT query
-            this.filterService(service)
-            this._services.push(service)
-            this.serviceMap[service.fqdn] = true
-            this.emit('up', service)
-        } catch(_) {}
+        // Test if service allowed by TXT query
+        if(filterService(service, this.txtQuery) === false) return
+        this._services.push(service)
+        this.serviceMap[service.fqdn] = true
+        this.emit('up', service)
     }
 
     private removeService(fqdn: string) {
@@ -151,24 +150,6 @@ export class Browser extends EventEmitter {
         this._services.splice(index, 1)
         delete this.serviceMap[fqdn]
         this.emit('down', service)
-    }
-
-    private filterService(service: Service) {
-        if(this.txtQuery === undefined) return
-        let serviceTxt = service.txt
-        let query = Object.entries(this.txtQuery)
-            .map(([key, value]) => {
-                try {
-                    let queryValue = serviceTxt[key]
-                    if(queryValue === undefined) return false
-                    if(value != queryValue) return false
-                    return true
-                } catch(_) {
-                    return false
-                }
-            })
-        if(query.length == 0) return
-        if(query.includes(false)) throw new Error('Service does not meet TXT query')
     }
 
     // PTR records with a TTL of 0 is considered a "goodbye" announcement. I.e. a
@@ -192,7 +173,7 @@ export class Browser extends EventEmitter {
         return records
           .filter((rr: ServiceRecord) => rr.type === 'PTR' && dnsEqual(rr.name, name))
           .map((ptr: ServiceRecord) => {
-            var service: KeyValue = {
+            const service: KeyValue = {
               addresses: []
             }
       
