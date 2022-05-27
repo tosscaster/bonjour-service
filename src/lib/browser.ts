@@ -5,6 +5,7 @@ import { EventEmitter }                                             from 'events
 import Service, { ServiceRecord }                                   from './service'
 import { toString as ServiceToString, toType as ServiceToType }     from './service-types'
 import filterService                                                from './utils/filter-service'
+import filterTxt                                                    from './utils/filter-txt'
 
 const TLD           = '.local'
 const WILDCARD      = '_services._dns-sd._udp' + TLD
@@ -67,8 +68,8 @@ export class Browser extends EventEmitter {
             this.wildcard = false
         }
 
-        // Provide a txt query
-        if(opts.txt !== undefined) this.txtQuery = opts.txt
+        // Provide a txt query, filter binary key if provided
+        if(opts.txt !== undefined) this.txtQuery = filterTxt(opts.txt)
 
         if (onup) this.on('up', onup)
 
