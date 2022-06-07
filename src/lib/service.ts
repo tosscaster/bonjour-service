@@ -3,9 +3,10 @@
  */
 
 import os                               from 'os'
+import DnsTxt                           from './dns-txt'
+import KeyValue                         from './KeyValue'
 import { EventEmitter }                 from 'events'
 import { toString as ServiceToString }  from './service-types'
-import DnsTxt                           from './dns-txt'
 
 const TLD: string = '.local'
 
@@ -17,7 +18,7 @@ export interface ServiceConfig {
     host?       : string
     fqdn?       : string
     subtypes?   : Array<string>
-    txt?        : { [key: string]: any }
+    txt?        : KeyValue
 
     probe?      : boolean
 }
@@ -26,7 +27,7 @@ export interface ServiceRecord {
     name        : string
     type        : 'PTR' | 'SRV' | 'TXT' | 'A' | 'AAAA'
     ttl         : number
-    data        : { [key: string]: any } | string | any
+    data        : KeyValue | string | any
 }
 
 export interface ServiceReferer {
@@ -65,6 +66,10 @@ export class Service extends EventEmitter {
 
         this.txtService = new DnsTxt()
 
+        if (!config.name) throw new Error('ServiceConfig requires `name` property to be set');
+        if (!config.type) throw new Error('ServiceConfig requires `type` property to be set');
+        if (!config.port) throw new Error('ServiceConfig requires `port` property to be set');
+        
         this.name       = config.name
         this.protocol   = config.protocol || 'tcp'
         this.type       = ServiceToString({ name: config.type, protocol: this.protocol })

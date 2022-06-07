@@ -1,6 +1,6 @@
 'use strict'
 
-type KeyValue = { [key: string]: any }
+import KeyValue         from './KeyValue'
 
 export class DnsTxt {
 
