@@ -137,6 +137,21 @@ test('bonjour.find - binary txt', function (bonjour, t) {
   bonjour.publish({ name: 'Foo', type: 'test', port: 3000, txt: { bar: Buffer.from('buz') } }).on('up', next())
 })
 
+test('bonjour.find - subtypes', function (bonjour, t) {
+  const next = afterAll(function () {
+    const browser = bonjour.find({ type: 'test' })
+
+    browser.on('up', function (s) {
+      t.equal(s.name, 'Foo')
+      t.deepEqual(s.subtypes, ['foo', 'bar'])
+      bonjour.destroy()
+      t.end()
+    })
+  })
+
+  bonjour.publish({ name: 'Foo', type: 'test', port: 3000, subtypes: ['foo', 'bar'] }).on('up', next())
+})
+
 test('bonjour.find - down event', function (bonjour, t) {
   const service = bonjour.publish({ name: 'Foo Bar', type: 'test', port: 3000 })
 

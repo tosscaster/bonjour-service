@@ -84,6 +84,11 @@ export class Service extends EventEmitter {
     public records(): Array<ServiceRecord> {
         var records : Array<ServiceRecord>  = [this.RecordPTR(this), this.RecordSRV(this), this.RecordTXT(this)]
 
+        // Handle subtypes
+        for (let subtype of this.subtypes || []) {
+            records.push(this.RecordSubtypePTR(this, subtype));
+        }
+
         // Create record per interface address
         let ifaces  : Array<any> = Object.values(os.networkInterfaces())
         for(let iface of ifaces) {
@@ -99,11 +104,6 @@ export class Service extends EventEmitter {
                         break
                 }
             }
-        }
-
-        // Handle subtypes
-        for (let subtype of this.subtypes || []) {
-            records.push(this.RecordSubtypePTR(this, subtype));
         }
 
         // Return all records
