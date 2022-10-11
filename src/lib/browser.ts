@@ -3,7 +3,7 @@ import DnsTxt                                                       from './dns-
 import dnsEqual                                                     from 'dns-equal'
 import { EventEmitter }                                             from 'events'
 import Service, { ServiceRecord }                                   from './service'
-import { ServiceType, toString as ServiceToString, toType as ServiceToType } from './service-types'
+import { toString as ServiceToString, toType as ServiceToType }     from './service-types'
 import filterService                                                from './utils/filter-service'
 import filterTxt                                                    from './utils/filter-txt'
 
