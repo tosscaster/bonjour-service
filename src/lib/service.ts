@@ -70,7 +70,7 @@ export class Service extends EventEmitter {
         if (!config.type) throw new Error('ServiceConfig requires `type` property to be set');
         if (!config.port) throw new Error('ServiceConfig requires `port` property to be set');
 
-        this.name       = config.name
+        this.name       = config.name.split('.').join('-')
         this.protocol   = config.protocol || 'tcp'
         this.type       = ServiceToString({ name: config.type, protocol: this.protocol })
         this.port       = config.port
