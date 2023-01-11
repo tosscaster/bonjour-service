@@ -69,7 +69,7 @@ export class Service extends EventEmitter {
         if (!config.name) throw new Error('ServiceConfig requires `name` property to be set');
         if (!config.type) throw new Error('ServiceConfig requires `type` property to be set');
         if (!config.port) throw new Error('ServiceConfig requires `port` property to be set');
-        
+
         this.name       = config.name
         this.protocol   = config.protocol || 'tcp'
         this.type       = ServiceToString({ name: config.type, protocol: this.protocol })
@@ -83,6 +83,11 @@ export class Service extends EventEmitter {
 
     public records(): Array<ServiceRecord> {
         var records : Array<ServiceRecord>  = [this.RecordPTR(this), this.RecordSRV(this), this.RecordTXT(this)]
+
+        // Handle subtypes
+        for (let subtype of this.subtypes || []) {
+            records.push(this.RecordSubtypePTR(this, subtype));
+        }
 
         // Create record per interface address
         let ifaces  : Array<any> = Object.values(os.networkInterfaces())
@@ -107,8 +112,8 @@ export class Service extends EventEmitter {
 
     /**
      * Provide PTR record
-     * @param service 
-     * @returns 
+     * @param service
+     * @returns
      */
     private RecordPTR(service: Service): ServiceRecord {
         return {
@@ -120,9 +125,24 @@ export class Service extends EventEmitter {
     }
 
     /**
+     * Provide PTR record for subtype
+     * @param service
+     * @param subtype
+     * @returns
+     */
+     private RecordSubtypePTR(service: Service, subtype: string): ServiceRecord {
+        return {
+            name: `_${subtype}._sub.${service.type}${TLD}`,
+            type: 'PTR',
+            ttl: 28800,
+            data: `${service.name}.${service.type}${TLD}`
+        }
+    }
+
+    /**
      * Provide SRV record
-     * @param service 
-     * @returns 
+     * @param service
+     * @returns
      */
     private RecordSRV(service: Service): ServiceRecord {
         return {
@@ -138,8 +158,8 @@ export class Service extends EventEmitter {
 
     /**
      * Provide TXT record
-     * @param service 
-     * @returns 
+     * @param service
+     * @returns
      */
     private RecordTXT(service: Service): ServiceRecord {
         return {
@@ -152,9 +172,9 @@ export class Service extends EventEmitter {
 
     /**
      * Provide A record
-     * @param service 
-     * @param ip 
-     * @returns 
+     * @param service
+     * @param ip
+     * @returns
      */
     private RecordA(service: Service, ip: string): ServiceRecord {
         return {
@@ -169,7 +189,7 @@ export class Service extends EventEmitter {
      * Provide AAAA record
      * @param service
      * @param ip
-     * @returns 
+     * @returns
      */
     private RecordAAAA(service: Service, ip: string): ServiceRecord {
         return {

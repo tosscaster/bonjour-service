@@ -78,15 +78,15 @@ export class Browser extends EventEmitter {
 
     public start() {
         if (this.onresponse || this.name === undefined) return
-        
+
         var self = this
-        
+
         // List of names for the browser to listen for. In a normal search this will
         // be the primary name stored on the browser. In case of a wildcard search
         // the names will be determined at runtime as responses come in.
         var nameMap: KeyValue = {}
         if (!this.wildcard) nameMap[this.name] = true
-    
+
         this.onresponse = (packet: any, rinfo: any) => {
             if (self.wildcard) {
                 packet.answers.forEach((answer: any) => {
@@ -95,33 +95,33 @@ export class Browser extends EventEmitter {
                     self.mdns.query(answer.data, 'PTR')
                 })
             }
-        
+
             Object.keys(nameMap).forEach(function (name) {
                 // unregister all services shutting down
                 self.goodbyes(name, packet).forEach(self.removeService.bind(self))
-            
+
                 // register all new services
                 var matches = self.buildServicesFor(name, packet, self.txt, rinfo)
                 if (matches.length === 0) return
-            
+
                 matches.forEach((service: Service) => {
                     if (self.serviceMap[service.fqdn]) return // ignore already registered services
                     self.addService(service)
                 })
             })
         }
-        
+
         this.mdns.on('response', this.onresponse)
         this.update()
     }
-    
+
     public stop() {
         if (!this.onresponse) return
-    
+
         this.mdns.removeListener('response', this.onresponse)
         this.onresponse = null
     }
-    
+
     public update() {
         this.mdns.query(this.name, 'PTR')
     }
@@ -129,7 +129,7 @@ export class Browser extends EventEmitter {
     public get services() {
         return this._services;
     }
-    
+
     private addService(service: Service) {
         // Test if service allowed by TXT query
         if(filterService(service, this.txtQuery) === false) return
@@ -168,16 +168,32 @@ export class Browser extends EventEmitter {
         .map((rr: ServiceRecord) => rr.data)
     }
 
+    // subytpes are in additional PTR records, with identical service names
+    //
+    // Note that only one subtype is allowed per record, but there may be multiple records
+    //
+    // For more info see:
+    // https://tools.ietf.org/html/rfc6763#section-7.1
+    //  Selective Instance Enumeration (Subtypes)
+    //
     private buildServicesFor(name: string, packet: any, txt: any, referer: any) {
         var records = packet.answers.concat(packet.additionals).filter( (rr: ServiceRecord) => rr.ttl > 0) // ignore goodbye messages
-      
+
         return records
           .filter((rr: ServiceRecord) => rr.type === 'PTR' && dnsEqual(rr.name, name))
           .map((ptr: ServiceRecord) => {
             const service: KeyValue = {
-              addresses: []
+              addresses: [],
+              subtypes: []
             }
-      
+
+            records.filter((rr: ServiceRecord) => {
+                return (rr.type === 'PTR' && dnsEqual(rr.data, ptr.data) && rr.name.includes('._sub'))
+              }).forEach((rr: ServiceRecord) => {
+                const types = ServiceToType(rr.name)
+                service.subtypes.push(types.subtype)
+            })
+
             records
               .filter((rr: ServiceRecord) => {
                 return (rr.type === 'SRV' || rr.type === 'TXT') && dnsEqual(rr.name, ptr.data)
@@ -194,24 +210,23 @@ export class Browser extends EventEmitter {
                   service.port = rr.data.port
                   service.type = types.name
                   service.protocol = types.protocol
-                  service.subtypes = types.subtypes
                 } else if (rr.type === 'TXT') {
                   service.rawTxt = rr.data
                   service.txt = this.txt.decodeAll(rr.data)
                 }
               })
-      
+
             if (!service.name) return
-      
+
             records
               .filter((rr: ServiceRecord) => (rr.type === 'A' || rr.type === 'AAAA') && dnsEqual(rr.name, service.host))
               .forEach((rr: ServiceRecord) => service.addresses.push(rr.data))
-      
+
             return service
           })
           .filter((rr: ServiceRecord) => !!rr)
       }
-      
+
 }
 
 export default Browser
