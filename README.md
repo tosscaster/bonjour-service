@@ -116,6 +116,10 @@ Emitted every time a new service is found that matches the browser.
 
 Emitted every time an existing service emmits a goodbye message.
 
+#### `Event: txt-update`
+
+Emitted every time an existing service does a new announcement with an updated TXT record.
+
 #### `browser.services()`
 
 An array of services known by the browser to be online.

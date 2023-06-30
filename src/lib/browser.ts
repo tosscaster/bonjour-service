@@ -6,6 +6,7 @@ import Service, { ServiceRecord }                                   from './serv
 import { toString as ServiceToString, toType as ServiceToType }     from './service-types'
 import filterService                                                from './utils/filter-service'
 import filterTxt                                                    from './utils/filter-txt'
+import equalTxt                                                   from './utils/equal-txt'
 
 const TLD           = '.local'
 const WILDCARD      = '_services._dns-sd._udp' + TLD
@@ -37,7 +38,7 @@ export class Browser extends EventEmitter {
 
     private mdns        : any
     private onresponse  : any       = null
-    private serviceMap  : KeyValue  = {}
+    private serviceMap  : Record<string, boolean>  = {}
 
     private txt         : any
     private name?       : string
@@ -105,7 +106,10 @@ export class Browser extends EventEmitter {
                 if (matches.length === 0) return
 
                 matches.forEach((service: Service) => {
-                    if (self.serviceMap[service.fqdn]) return // ignore already registered services
+                    if (self.serviceMap[service.fqdn]) {
+                        self.updateService(service)
+                        return
+                    }
                     self.addService(service)
                 })
             })
@@ -136,6 +140,22 @@ export class Browser extends EventEmitter {
         this._services.push(service)
         this.serviceMap[service.fqdn] = true
         this.emit('up', service)
+    }
+
+    private updateService(service: Service) {
+        // check if txt updated
+        if (equalTxt(service.txt, this._services.find((s) => dnsEqual(s.fqdn, service.fqdn))?.txt)) return
+        // if the new service is not allowed by the txt query, remove it
+        if(!filterService(service, this.txtQuery)) {
+            this.removeService(service.fqdn)
+            return
+        }
+        // replace service
+        this._services = this._services.map(function (s) {
+            if (!dnsEqual(s.fqdn, service.fqdn)) return s
+            return service
+        })
+        this.emit('txt-update', service);
     }
 
     private removeService(fqdn: string) {
