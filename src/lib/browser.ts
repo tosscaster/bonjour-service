@@ -144,7 +144,7 @@ export class Browser extends EventEmitter {
 
     private updateService(service: Service) {
         // check if txt updated
-        if (equalTxt(service.txt, this._services.find((s) => dnsEqual(s.fqdn, service.fqdn))?.txt)) return
+        if (equalTxt(service.txt, this._services.find((s) => dnsEqual(s.fqdn, service.fqdn))?.txt || {})) return
         // if the new service is not allowed by the txt query, remove it
         if(!filterService(service, this.txtQuery)) {
             this.removeService(service.fqdn)
