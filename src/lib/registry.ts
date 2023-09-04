@@ -176,7 +176,7 @@ export class Registry {
             return records
         }), 1)
     
-        if (records.length === 0) return callback && callback()
+        if (records.length === 0) return callback && process.nextTick(callback)
         server.unregister(records)
     
         // send goodbye message
