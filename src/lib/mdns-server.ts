@@ -1,21 +1,22 @@
 import flatten              from 'array-flatten'
-import { ServiceRecord }    from './service'
+import { ServiceConfig, ServiceRecord }    from './service'
 import deepEqual            from 'fast-deep-equal/es6'
 
 import MulticastDNS         from 'multicast-dns'
 import dnsEqual             from 'dns-equal'
+import KeyValue             from './KeyValue'
 
 export class Server {
 
     public mdns             : any
-    private registry        : any = {}
-    private errorCallback   : Function;
+    private registry        : KeyValue = {}
+    private errorCallback   : Function
 
-    constructor(opts: any, errorCallback?: Function | undefined) {
+    constructor(opts: Partial<ServiceConfig>, errorCallback?: Function | undefined) {
         this.mdns = MulticastDNS(opts)
         this.mdns.setMaxListeners(0)
         this.mdns.on('query', this.respondToQuery.bind(this))
-        this.errorCallback = errorCallback ?? function(err: any) {throw err;}
+        this.errorCallback = errorCallback ?? function(err: any) { throw err }
     }
 
     public register(records: Array<ServiceRecord> | ServiceRecord) {
@@ -58,7 +59,7 @@ export class Server {
         }
     }
 
-    private respondToQuery(query: any): any {
+    private respondToQuery(query: KeyValue): void {
         let self = this
         query.questions.forEach((question: any) => {
             var type = question.type
@@ -106,7 +107,7 @@ export class Server {
         })
     }
 
-    private recordsFor(name: string, type: string): Array<any> {
+    private recordsFor(name: string, type: string): boolean[] {
         if (!(type in this.registry)) {
             return []
         }
@@ -117,7 +118,7 @@ export class Server {
         })
     }
 
-    private isDuplicateRecord (a: ServiceRecord): (b: ServiceRecord) => any {
+    private isDuplicateRecord (a: ServiceRecord): (b: ServiceRecord) => boolean {
         return (b: ServiceRecord) => {
             return a.type === b.type &&
                 a.name === b.name &&

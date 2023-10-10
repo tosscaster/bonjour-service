@@ -1,4 +1,4 @@
-import flatten                                      from 'array-flatten'
+import flatten, { NestedArray }                                      from 'array-flatten'
 import dnsEqual                                     from 'dns-equal'
 import Server                                       from './mdns-server'
 import Service, { ServiceConfig, ServiceRecord }    from './service'
@@ -28,9 +28,9 @@ export class Registry {
             if(!(service instanceof Service)) return
         
             if(opts.probe) {
-                registry.probe(registry.server.mdns, service, (exists: any) => {
+                registry.probe(registry.server.mdns, service, (exists: boolean) => {
                     if(exists) {
-                        service.stop()
+                        if(service.stop !== undefined) service.stop()
                         console.log(new Error('Service name is already in use on the network'))
                         return
                     }
@@ -109,7 +109,7 @@ export class Registry {
             return dnsEqual(rr.name, service.fqdn)
         }
         
-        const done = (exists: any) => {
+        const done = (exists: boolean) => {
             mdns.removeListener('response', onresponse)
             clearTimeout(timer)
             callback(!!exists)
