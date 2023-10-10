@@ -1,10 +1,8 @@
-import flatten              from 'array-flatten'
-import { ServiceConfig, ServiceRecord }    from './service'
-import deepEqual            from 'fast-deep-equal/es6'
-
-import MulticastDNS         from 'multicast-dns'
-import dnsEqual             from 'dns-equal'
-import KeyValue             from './KeyValue'
+import { ServiceConfig, ServiceRecord }     from './service'
+import MulticastDNS                         from 'multicast-dns'
+import KeyValue                             from './KeyValue'
+import deepEqual                            from 'fast-deep-equal/es6'
+import dnsEqual                             from './utils/dns-equal'
 
 export class Server {
 
@@ -67,7 +65,7 @@ export class Server {
 
             // generate the answers section
             var answers = type === 'ANY'
-              ? flatten.depth(Object.keys(self.registry).map(self.recordsFor.bind(self, name)), 1)
+              ? Object.keys(self.registry).map(self.recordsFor.bind(self, name)).flat(1)
               : self.recordsFor(name, type)
 
             if (answers.length === 0) return
