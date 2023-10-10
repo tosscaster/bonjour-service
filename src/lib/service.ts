@@ -56,8 +56,8 @@ export class Service extends EventEmitter {
     public activated   : boolean = false
     public destroyed    : boolean = false
 
-    public start?       : any
-    public stop?        : any
+    public start?       : CallableFunction
+    public stop?        : CallableFunction
 
     private txtService  : DnsTxt
 
