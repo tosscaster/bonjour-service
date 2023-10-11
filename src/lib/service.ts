@@ -21,6 +21,7 @@ export interface ServiceConfig {
     txt?        : KeyValue
 
     probe?      : boolean
+    disableIPv6?: boolean
 }
 
 export interface ServiceRecord {
@@ -49,6 +50,7 @@ export class Service extends EventEmitter {
     public subtypes?    : Array<string>
     public addresses?   : Array<string>
     public referer?     : ServiceReferer
+    public disableIPv6  : boolean
 
     public probe        : boolean = true
 
@@ -70,14 +72,15 @@ export class Service extends EventEmitter {
         if (!config.type) throw new Error('ServiceConfig requires `type` property to be set');
         if (!config.port) throw new Error('ServiceConfig requires `port` property to be set');
 
-        this.name       = config.name.split('.').join('-')
-        this.protocol   = config.protocol || 'tcp'
-        this.type       = ServiceToString({ name: config.type, protocol: this.protocol })
-        this.port       = config.port
-        this.host       = config.host || os.hostname()
-        this.fqdn       = `${this.name}.${this.type}${TLD}`
-        this.txt        = config.txt
-        this.subtypes   = config.subtypes
+        this.name           = config.name.split('.').join('-')
+        this.protocol       = config.protocol || 'tcp'
+        this.type           = ServiceToString({ name: config.type, protocol: this.protocol })
+        this.port           = config.port
+        this.host           = config.host || os.hostname()
+        this.fqdn           = `${this.name}.${this.type}${TLD}`
+        this.txt            = config.txt
+        this.subtypes       = config.subtypes
+        this.disableIPv6    = !!config.disableIPv6
     }
 
 
@@ -100,6 +103,7 @@ export class Service extends EventEmitter {
                         records.push(this.RecordA(this, addr.address))
                         break
                     case 'IPv6':
+                        if(this.disableIPv6) break
                         records.push(this.RecordAAAA(this, addr.address))
                         break
                 }
