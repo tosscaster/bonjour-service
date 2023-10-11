@@ -17,7 +17,7 @@ export class Registry {
 
     public publish(config: ServiceConfig): Service {
 
-        function start(service: Service,registry: Registry, opts: {probe: boolean}) {
+        function start(service: Service, registry: Registry, opts?: { probe: boolean }) {
             if (service.activated) return
             service.activated = true
         
@@ -25,7 +25,7 @@ export class Registry {
         
             if(!(service instanceof Service)) return
         
-            if(opts.probe) {
+            if(opts?.probe) {
                 registry.probe(registry.server.mdns, service, (exists: boolean) => {
                     if(exists) {
                         if(service.stop !== undefined) service.stop()
