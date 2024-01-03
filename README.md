@@ -8,6 +8,8 @@ multicast DNS.
 
 This is a rewrite of the project Bonjour (https://github.com/watson/bonjour) into modern TypeScript.
 
+bonjour-service is supported by [ON LX Limited](https://onlx.ltd/?src=bonjour-service). Check out our projects such as [Ctrl Suite](https://onlx.ltd/ctrl-suite?src=bonjour-service) and [Ctrl for iPad](https://onlx.ltd/ctrl-for-ipad?src=bonjour-service).
+
 
 
 ## Installation
