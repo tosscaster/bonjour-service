@@ -1,7 +1,7 @@
 
-import Registry                     from './lib/registry'
-import Server                       from './lib/mdns-server'
-import Browser, { BrowserConfig }   from './lib/browser'
+import Registry                                     from './lib/registry'
+import Server                                       from './lib/mdns-server'
+import Browser, { BrowserConfig }                   from './lib/browser'
 import Service, { ServiceConfig, ServiceReferer }   from './lib/service'
 
 export class Bonjour {
@@ -14,7 +14,7 @@ export class Bonjour {
      * @param opts ServiceConfig | undefined
      * @param errorCallback Function | undefined
      */
-    constructor(opts?: ServiceConfig | undefined, errorCallback?: Function | undefined) {
+    constructor(opts: Partial<ServiceConfig> = {}, errorCallback?: Function | undefined) {
         this.server     = new Server(opts, errorCallback)
         this.registry   = new Registry(this.server)
     }
@@ -43,7 +43,7 @@ export class Bonjour {
      * @param onup Callback when up event received
      * @returns
      */
-    public find(opts: BrowserConfig | undefined = undefined, onup?: (service: Service) => void): Browser {
+    public find(opts: BrowserConfig | null = null, onup?: (service: Service) => void): Browser {
         return new Browser(this.server.mdns, opts, onup)
     }
 
@@ -54,9 +54,9 @@ export class Bonjour {
      * @param callback Callback when device found
      * @returns
      */
-    public findOne(opts: BrowserConfig | undefined = undefined, timeout = 10000, callback?: CallableFunction): Browser {
+    public findOne(opts: BrowserConfig | null = null, timeout = 10000, callback?: CallableFunction): Browser {
         const browser: Browser = new Browser(this.server.mdns, opts)
-        var timer: any
+        var timer: NodeJS.Timeout
         browser.once('up', (service: Service) => {
             if(timer !== undefined) clearTimeout(timer)
             browser.stop()
@@ -71,10 +71,11 @@ export class Bonjour {
 
     /**
      * Destroy the class
+     * @param callback Callback when underlying socket is closed
      */
-    public destroy() {
+    public destroy(callback?: CallableFunction) {
         this.registry.destroy()
-        this.server.mdns.destroy()
+        this.server.mdns.destroy(callback)
     }
 
 }

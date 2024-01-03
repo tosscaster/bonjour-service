@@ -1,22 +1,25 @@
 import KeyValue                                                     from './KeyValue'
 import DnsTxt                                                       from './dns-txt'
-import dnsEqual                                                     from 'dns-equal'
+import dnsEqual                                                     from './utils/dns-equal'
 import { EventEmitter }                                             from 'events'
 import Service, { ServiceRecord }                                   from './service'
 import { toString as ServiceToString, toType as ServiceToType }     from './service-types'
 import filterService                                                from './utils/filter-service'
 import filterTxt                                                    from './utils/filter-txt'
+import equalTxt                                                   from './utils/equal-txt'
 
 const TLD           = '.local'
 const WILDCARD      = '_services._dns-sd._udp' + TLD
 
-
 export interface BrowserConfig {
-    type: string
-    protocol?: 'tcp' | 'udp'
-    subtypes?: Array<string>
-    txt?: any
+    type        : string
+    name?       : string
+    protocol?   : 'tcp' | 'udp'
+    subtypes?   : string[]
+    txt?        : KeyValue
 }
+
+export type BrowserOnUp = (service: Service) => void
 
 /**
  * Start a browser
@@ -36,7 +39,7 @@ export interface BrowserConfig {
 export class Browser extends EventEmitter {
 
     private mdns        : any
-    private onresponse  : any       = null
+    private onresponse  : CallableFunction | undefined  = undefined
     private serviceMap  : KeyValue  = {}
 
     private txt         : any
@@ -44,24 +47,20 @@ export class Browser extends EventEmitter {
     private txtQuery    : KeyValue | undefined
     private wildcard    : boolean   = false
 
-    private _services    : Array<any> = []
+    private _services    : Service[] = []
 
-    constructor(mdns: any, opts: any, onup?: (service: Service) => void) {
+    constructor(mdns: any, opts: BrowserConfig | BrowserOnUp | null, onup?: BrowserOnUp) {
         super()
 
-        if (typeof opts === 'function') return new Browser(mdns, null, opts)
+        if (typeof opts === 'function') return new Browser(mdns, null, opts as BrowserOnUp)
 
         this.mdns   = mdns
+        this.txt    = new DnsTxt(opts !== null && opts.txt != null ? opts.txt : undefined)
 
-        if(opts != null && opts.txt != null) {
-            this.txt    = new DnsTxt(opts.txt)
-        } else {
-            this.txt    = new DnsTxt()
-        }
 
-        if (!opts || !opts.type) {
-            this.name = WILDCARD
-            this.wildcard = true
+        if (opts === null || opts.type === undefined) {
+            this.name       = WILDCARD
+            this.wildcard   = true
         } else {
             this.name = ServiceToString({ name: opts.type, protocol: opts.protocol || 'tcp'}) + TLD
             if (opts.name) this.name = opts.name + '.' + this.name
@@ -105,7 +104,10 @@ export class Browser extends EventEmitter {
                 if (matches.length === 0) return
 
                 matches.forEach((service: Service) => {
-                    if (self.serviceMap[service.fqdn]) return // ignore already registered services
+                    if (self.serviceMap[service.fqdn]) {
+                        self.updateService(service)
+                        return
+                    }
                     self.addService(service)
                 })
             })
@@ -119,7 +121,7 @@ export class Browser extends EventEmitter {
         if (!this.onresponse) return
 
         this.mdns.removeListener('response', this.onresponse)
-        this.onresponse = null
+        this.onresponse = undefined
     }
 
     public update() {
@@ -136,6 +138,22 @@ export class Browser extends EventEmitter {
         this._services.push(service)
         this.serviceMap[service.fqdn] = true
         this.emit('up', service)
+    }
+
+    private updateService(service: Service) {
+        // check if txt updated
+        if (equalTxt(service.txt, this._services.find((s) => dnsEqual(s.fqdn, service.fqdn))?.txt || {})) return
+        // if the new service is not allowed by the txt query, remove it
+        if(!filterService(service, this.txtQuery)) {
+            this.removeService(service.fqdn)
+            return
+        }
+        // replace service
+        this._services = this._services.map(function (s) {
+            if (!dnsEqual(s.fqdn, service.fqdn)) return s
+            return service
+        })
+        this.emit('txt-update', service);
     }
 
     private removeService(fqdn: string) {
@@ -176,7 +194,7 @@ export class Browser extends EventEmitter {
     // https://tools.ietf.org/html/rfc6763#section-7.1
     //  Selective Instance Enumeration (Subtypes)
     //
-    private buildServicesFor(name: string, packet: any, txt: any, referer: any) {
+    private buildServicesFor(name: string, packet: any, txt: KeyValue, referer: any) {
         var records = packet.answers.concat(packet.additionals).filter( (rr: ServiceRecord) => rr.ttl > 0) // ignore goodbye messages
 
         return records

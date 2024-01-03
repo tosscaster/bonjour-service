@@ -1,12 +1,10 @@
-import flatten                                      from 'array-flatten'
-import dnsEqual                                     from 'dns-equal'
+import dnsEqual                                     from './utils/dns-equal'
 import Server                                       from './mdns-server'
 import Service, { ServiceConfig, ServiceRecord }    from './service'
 
-
-
 const REANNOUNCE_MAX_MS : number    = 60 * 60 * 1000
 const REANNOUNCE_FACTOR : number    = 3
+const noop = function () {}
 
 export class Registry {
 
@@ -19,7 +17,7 @@ export class Registry {
 
     public publish(config: ServiceConfig): Service {
 
-        function start(service: Service,registry: Registry, opts: {probe: boolean}) {
+        function start(service: Service, registry: Registry, opts?: { probe: boolean }) {
             if (service.activated) return
             service.activated = true
         
@@ -27,10 +25,10 @@ export class Registry {
         
             if(!(service instanceof Service)) return
         
-            if(opts.probe) {
-                registry.probe(registry.server.mdns, service, (exists: any) => {
+            if(opts?.probe) {
+                registry.probe(registry.server.mdns, service, (exists: boolean) => {
                     if(exists) {
-                        service.stop()
+                        if(service.stop !== undefined) service.stop()
                         console.log(new Error('Service name is already in use on the network'))
                         return
                     }
@@ -42,9 +40,10 @@ export class Registry {
         }
         
         function stop(service: Service, registry: Registry, callback?: CallableFunction) {
-            if (!service.activated) return
+            if (!callback) callback = noop
+            if (!service.activated) return process.nextTick(callback)
         
-            if(!(service instanceof Service)) return
+            if(!(service instanceof Service)) return process.nextTick(callback)
             registry.teardown(registry.server, service, callback)
           
             const index = registry.services.indexOf(service)
@@ -109,7 +108,7 @@ export class Registry {
             return dnsEqual(rr.name, service.fqdn)
         }
         
-        const done = (exists: any) => {
+        const done = (exists: boolean) => {
             mdns.removeListener('response', onresponse)
             clearTimeout(timer)
             callback(!!exists)
@@ -167,16 +166,16 @@ export class Registry {
     
         services = services.filter((service: Service) =>  service.activated) // ignore services not currently starting or started
     
-        var records: any = flatten.depth(services.map(function (service) {
+        var records: any = services.flatMap(function (service) {
             service.activated = false
             var records = service.records()
             records.forEach((record: ServiceRecord) => {
                 record.ttl = 0 // prepare goodbye message
             })
             return records
-        }), 1)
+        })
     
-        if (records.length === 0) return callback && callback()
+        if (records.length === 0) return callback && process.nextTick(callback)
         server.unregister(records)
     
         // send goodbye message
