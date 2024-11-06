@@ -22,6 +22,7 @@ export interface ServiceConfig {
 
     probe?      : boolean
     disableIPv6?: boolean
+    interface?  : string
 }
 
 export interface ServiceRecord {
